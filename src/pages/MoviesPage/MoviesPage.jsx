@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import Loader from "../../components/Loader/Loader";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
 import MoviesFilter from "../../components/MoviesFilter/MoviesFilter";
@@ -14,36 +14,33 @@ export default function MoviesPage() {
     const [params] = useSearchParams();
     const movieFilter = params.get('query') ?? '';
 
-
     useEffect(() => {
-        if (movieFilter === "") {
-            return;
-        }
-        async function getData() {
+        async function fetchData() {
+            if (movieFilter === "") {
+                setMovies([]);
+                return;
+            }
+            setIsLoading(true);
             try {
-                setIsLoading(true);
-                setError(false);
                 const data = await getMoviesSearch(movieFilter);
                 setMovies(data);
+                setError(false);
             } catch (error) {
-                setError(true)
+                setError(true);
             } finally {
                 setIsLoading(false);
             }
         }
-        getData()
-    }, [movieFilter]);
 
-    const filteredMovies = movies.filter((movie) =>
-        movie.title.toLowerCase().includes(movieFilter.toLowerCase())
-    );
+        fetchData();
+    }, [movieFilter]);
 
     return (
         <div>
             {isLoading && <Loader />}
             {error && <ErrorMessage />}
             <MoviesFilter />
-            {movies.length > 0 && <MovieList movies={filteredMovies} />}
+            {movies.length > 0 && <MovieList movies={movies} />}
         </div>
     );
 }
